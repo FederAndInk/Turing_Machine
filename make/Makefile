@@ -45,7 +45,8 @@ CMA = unix.cma
 OCAMLC = ocamlc -w -8 -w -26 -I lib -I Turing_Machines -I Lambda_Calculus -I Universal
 
 #The ocaml interpreter with options
-OCAMLI = ledit -h .ledit_history ocaml -I lib -I Turing_Machines -I Lambda_Calculus -I Universal
+OCAMLI = ocaml -I lib -I Turing_Machines -I Lambda_Calculus -I Universal
+OCAMLEDIT = ledit -h .ledit_history ocaml -I lib -I Turing_Machines -I Lambda_Calculus -I Universal
 
 # directory needed for logging execution traces
 log_dir = _log
@@ -76,11 +77,15 @@ cmo: $(ML) main.ml
 
 play: $(log_dir) $(dot_dir)
 	@make cmo
+	@$(OCAMLI) $(CMA) $(CMO)
+
+ledit: $(log_dir) $(dot_dir)
+	@make cmo
 	@echo "#use \"main.ml\";;" > .ledit_history
 	@echo "#use \"Universal/UTM.ml\";;" >> .ledit_history
 	@echo "open Demo;;" >> .ledit_history
 	@echo "demo();;" >> .ledit_history
-	@$(OCAMLI) $(CMA) $(CMO)
+	@$(OCAMLEDIT) $(CMA) $(CMO)
 
 run: $(log_dir) $(dot_dir)
 	@make cmo

@@ -141,26 +141,25 @@ let decr_code: machine_code =
 
       O;Std;U;C ; B ; B ; L ; O;Exc;U;C ; (* (Uni1) -_/_:L-> (Exc1) *)
       O;Std;U;C ; Z ; Z ; R ; O;Std;U;C ; (* (Uni1) -Z/_:R-> (Uni1) *)
-      O;Std;U;C ; U ; B ; R ; O;Std;UZ;C ; (* (Uni1) -U/_:R-> (Zer3) *)
+      O;Std;U;C ; U ; B ; R ; O;Std;U;Z;C ; (* (Uni1) -U/_:R-> (Zer3) *)
 
-      O;Std;UZ;C ; B ; B ; L ; O;Std;ZZ;C ; (* (ZER3) -_/_:R-> (Tran4) *)
-      O;Std;ZZ;C ; B ; B ; L ; O;Std;UZZ;C ; (* (Tran4) -Z/_:R-> (Back5) *)
+      O;Std;U;Z;C ; B ; B ; L ; O;Std;Z;Z;C ; (* (ZER3) -_/_:R-> (Tran4) *)
+      O;Std;Z;Z;C ; B ; B ; L ; O;Std;U;Z;Z;C ; (* (Tran4) -Z/_:R-> (Back5) *)
 
 
       (* BUT b
       *)
 
-      O;Std;UZ;C ; Z ; Z ; L ; O;Std;UZZZ;C ; (* (ZER3) -_/_:R-> (Tran5) *)
-      O;Std;UZZZ;C ; B ; Z ; L ; O;Std;UZZ;C ; (* (Tran5) -Z/_:R-> (Back5) *)
+      O;Std;U;Z;C ; Z ; Z ; L ; O;Std;U;Z;Z;Z;C ; (* (ZER3) -_/_:R-> (Tran5) *)
+      O;Std;U;Z;Z;Z;C ; B ; Z ; L ; O;Std;U;Z;Z;C ; (* (Tran5) -Z/_:R-> (Back5) *)
 
-      O;Std;UZ;C ; U ; U ; L ; O;Std;UZZZ;C ; (* (ZER3) -_/_:R-> (Tran5) *)
-      O;Std;UZZZ;C ; B ; Z ; L ; O;Std;UZZ;C ; (* (Tran5) -Z/_:R-> (Back5) *)
+      O;Std;U;Z;C ; U ; U ; L ; O;Std;U;Z;Z;Z;C ; (* (ZER3) -_/_:R-> (Tran5) *)
+      O;Std;U;Z;Z;Z;C ; B ; Z ; L ; O;Std;U;Z;Z;C ; (* (Tran5) -Z/_:R-> (Back5) *)
 
       (* *)
 
-      O;Std;UZZ;C ; Z ; U ; L ; O;Std;UZZ;C ; (* (Back5) -Z/_:R-> (Back5) *)
-      O;Std;UZZ;C ; B ; B ; R ; O;Acc;U;C ; (* (Back5) -Z/_:R-> (Acc1) *)
-    ]
+      O;Std;U;Z;Z;C ; Z ; U ; L ; O;Std;U;Z;Z;C ; (* (Back5) -Z/_:R-> (Back5) *)
+      O;Std;U;Z;Z;C ; B ; B ; R ; O;Acc;U;C (* (Back5) -Z/_:R-> (Acc1) *)
     ]
   in  ("m_decr", code)
 
@@ -301,8 +300,12 @@ let demo: unit -> unit = fun () ->
   begin
     print_string "\n\n* DEMO * UTM.ml:\n\n" ;
     List.iter (fun _ -> ())
-      [ run_TM_on neg_TM [U;Z;Z;U] ;
+      [ 
+        (* run_TM_on neg_TM [U;Z;Z;U] ;
         run_UTM_on neg_code [U;Z;Z;U] ;
-        (* ... à compléter ... *)
+        run_TM_on incr_TM [U;Z;Z;U] ;
+        run_UTM_on incr_code [U;Z;Z;U] ; *)
+        run_TM_on decr_TM [U;Z;Z;U] ;
+        run_UTM_on decr_code [U;Z;Z;U] ;
       ]
   end

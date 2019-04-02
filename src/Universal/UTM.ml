@@ -167,15 +167,16 @@ let utm: Turing_Machine.t =
   let std1 = State.fresh_from init in
   let std_check_acc = State.fresh_from std1 in
   let std_check_acc_2 = State.fresh_from std_check_acc in
-  let std_find_next_trans = State.fresh_from std_check_acc_2 in
-  let std_check_trans_next = State.fresh_from std_find_next_trans in
-  let std_exec = State.fresh_from std_find_next_trans in
-  let std_exec_move = State.fresh_from std_exec in
   (* Found a new candidate transition, head is on first character *)
-  let std_end_next_trans = State.fresh_from std_exec in
-  let std_next_trans_reset = State.fresh_from std_end_next_trans in
+  let std_find_next_trans = State.fresh_from std_check_acc_2 in
   (* Bringing B2 to a new transition and B3 to its beginning *)
-  let std_next_state = State.fresh_from std_end_next_trans in
+  let std_next_state = State.fresh_from std_find_next_trans in
+  let std_next_trans_reset = State.fresh_from std_next_state in
+  let std_end_next_trans = State.fresh_from std_next_trans_reset in
+
+  let std_check_trans_next = State.fresh_from std_end_next_trans in
+  let std_exec = State.fresh_from std_check_trans_next in
+  let std_exec_move = State.fresh_from std_exec in
 
   (* Read a state *)
   let macros_transitions =
@@ -189,10 +190,6 @@ let utm: Turing_Machine.t =
 	[ (std_find_next_trans, Action( Simultaneous [ Nop ; RWM(Match(VAL s), No_Write, Right) ; RWM(Match(VAL s), No_Write, Right) ]), std_find_next_trans) ;
     (std_find_next_trans, Action( Simultaneous [ Nop ; RWM(Match(VAL s), No_Write, Right) ; RWM(Match(BUT s), No_Write, Right) ]), std_next_state)
     ] )
-    @ [ (std_find_next_trans, Action( Simultaneous [ Nop ; RWM(Match(VAL C), No_Write, Right) ; RWM(Match(VAL C), No_Write, Right) ]), std_next_trans_reset);
-        (std_next_trans_reset, Parallel [ Action(Nop) ; Action(Nop) ; Run(TM_Basic.left_most) ], std_end_next_trans);
-     (std_next_state, Parallel [ Action(Nop) ; Run(next_start) ; Run(TM_Basic.left_most) ], std_find_next_trans) ]
-
   in
   (* checks if the current transition in B2 matches the entry of B1 (executes the transition if it matches, else searches for another transition)*)
   let check_transition =
@@ -224,10 +221,15 @@ let utm: Turing_Machine.t =
           (* check if we are in acc state *)
           (std_check_acc, Action( Simultaneous [ Nop; Nop; RWM(Match ANY, No_Write, Right)]), std_check_acc_2) ;
           (std_check_acc_2, Action( Simultaneous [ Nop; Nop; RWM(Match(VAL Acc), No_Write, Here)]), accept) ;
-          (std_check_acc_2, Action( Simultaneous [ Nop; Nop; RWM(Match(BUT Acc), No_Write, Left)]), std_find_next_trans) ;
+          (std_check_acc_2, Action( Simultaneous [ Nop; Nop; RWM(Match(VAL Std), No_Write, Left)]), std_find_next_trans)
         ] @
           (* TODO: truc à THEO *)
       next_transition @
+        [ 
+          (std_find_next_trans, Action( Simultaneous [ Nop ; RWM(Match(VAL C), No_Write, Right) ; RWM(Match(VAL C), No_Write, Left) ]), std_next_trans_reset);
+          (std_next_trans_reset, Parallel [ Action(Nop) ; Action(Nop) ; Run(TM_Basic.left_most) ], std_end_next_trans);
+          (std_next_state, Parallel [ Action(Nop) ; Run(next_start) ; Run(TM_Basic.left_most) ], std_find_next_trans)
+        ] @
           (*check if we read on B1 what we want to read on B2 *)
       check_transition @
           (* put exec *)

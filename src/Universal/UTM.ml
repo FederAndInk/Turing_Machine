@@ -13,10 +13,10 @@
  *
  * Contributeurs 
  *
- * NOM Prénom :
- * NOM Prénom :
- * NOM Prénom :
- * NOM Prénom :
+ * NOM Prénom : Théo CUOQ
+ * NOM Prénom : Jessy DUCHAINE
+ * NOM Prénom : Ludovic JOZEAU
+ * NOM Prénom : Axel JOSEPH
  *
  *)
 
@@ -133,6 +133,22 @@ let decr_code: machine_code =
   let code = [ (* ... à compléter ... *) ]
   in  ("m_decr", code)
 
+
+(* Finds the next start of transition (opening parenthesis of the starting state) *)
+
+let next_start: Turing_Machine.t =
+  let init = nop.initial and accept = nop.accept and reject = nop.reject in
+  let inter = State.fresh_from init
+  in Turing_Machine.export	
+  { nop with
+    name = "M_decr" ;
+    transitions = 
+      [ (init, Action( RWM (Match(BUT O), No_Write, Right)), init) ;
+        (init, Action( RWM (Match(VAL O), No_Write, Right)), inter) ;
+        (inter, Action( RWM (Match(BUT O), No_Write, Right)), inter) ;
+        (inter, Action( RWM (Match(VAL O), No_Write, Here)), accept)
+      ]
+  }
     
 
 (** THE UNIVERSAL TURING MACHINE *)
@@ -148,23 +164,57 @@ let decr_code: machine_code =
 let utm: Turing_Machine.t = 
   let init = nop.initial in
   let accept = nop.accept in
-  let std1 = State.fresh_from init
-  in
+  let std1 = State.fresh_from init in
+  let std_find_next_trans = State.fresh_from std1 in
+  let std_check_trans_first_O = State.fresh_from std_find_next_trans in
+  let std_exec = State.fresh_from std_find_next_trans in
+  (* Found a new candidate transition, head is on first character *)
+  let std_end_next_trans = State.fresh_from std_exec in
+  (* Bringing B2 to a new transition and B3 to its beginning *)
+  let std_next_state = State.fresh_from std_end_next_transition in
+
+  (* Read a state *)
   let macros_transitions =
     Transition.foreach_symbol_of Alphabet.utm.symbols (IN [O;Std;Acc;Exc;Z;U]) (fun s ->
 	[ (init, Action( Simultaneous [ Nop ; RWM(Match(VAL s), No_Write, Right) ; RWM(Match ANY, Write s, Right) ]), init) ]
       )
-  in Turing_Machine.export	
+  in
+  (* find the next potential transition (finds the first matching state of B2 and B3) *)
+  let next_transition =
+    Transition.foreach_symbol_of Alphabet.utm.symbols (IN [O;Std;Acc;Exc;Z;U]) (fun s ->
+	[ (std_find_next_trans, Action( Simultaneous [ Nop ; RWM(Match(VAL s), No_Write, Right) ; RWM(Match(VAL s), No_Write, Right) ]), std_find_next_trans) ;
+    (std_find_next_trans, Action( Simultaneous [ Nop ; RWM(Match(VAL C), No_Write, Right) ; RWM(Match(VAL C), No_Write, Right) ]), std_end_next_trans) ;
+    (std_find_next_trans, Action( Simultaneous [ Nop ; RWM(Match(VAL s), No_Write, Right) ; RWM(Match(BUT s), No_Write, Right) ]), std_next_state) ;
+    (std_next_state, Parallel [ Action(Nop) ; Run(UTM.next_start) ; Run(TM_Basic.left_most) ], std_find_next_trans)
+    ] )
+  in
+  (* checks if the current transition in B2 matches the entry of B1 (executes the transition if it matches, else searches for another transition)*)
+  let check_transition =
+    Transition.foreach_symbol_of Alphabet.utm.symbols (IN [Z;U;B;D;S]) (fun s ->
+	[ (std_end_next_trans, Action( Simultaneous [ RWM(Match(VAL s), No_Write, Here) ; RWM(Match(VAL s), No_Write, Right) ; Nop), std_exec);
+    (std_end_next_trans, Action( Simultaneous [ RWM(Match(VAL s), No_Write, Here) ; RWM(Match(BUT s), No_Write, Here) ; Nop), std_check_trans_first_O) ]
+      )
+  in
+  Turing_Machine.export	
   { nop with
     nb_bands = 3 ;
     name = "UTM" ;
     transitions =
-      macros_transitions  @
+      macros_transitions  @ (*read first state *)
         [
+          (* end of first state *)
           (init, Action( Simultaneous [ Nop ; RWM(Match(VAL C), No_Write, Right) ; RWM(Match ANY, Write C, Right)]), std1) ;
-          (std1, Parallel [ Action(Nop) ; Run(TM_Basic.left_most) ; Run(TM_Basic.left_most) ], accept)
-          (* ... à compléter ... *)
-        ]
+          (* return to the beginning of the states *)
+          (std1, Parallel [ Action(Nop) ; Run(TM_Basic.left_most) ; Run(TM_Basic.left_most) ], std_find_next_state) ;
+        ] @
+          (* TODO: truc à THEO *)
+      next_transition @
+          (*check if read what we want to read *)
+      check_transition @
+          (std_check_trans_first_O, Parallel [ Action(Nop) ; Run(TM_Basic.find_symbol_on_the O Right) ; Action(Nop) ], std_find_next_state) ;
+          (* put exec *)
+          
+          (* return to the init state *)
   }
 
   

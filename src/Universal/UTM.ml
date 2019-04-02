@@ -13,7 +13,7 @@
  *
  * Contributeurs 
  *
- * NOM Prénom :
+ * NOM Prénom : 
  * NOM Prénom :
  * NOM Prénom :
  * NOM Prénom :
@@ -85,7 +85,7 @@ let incr_TM: Turing_Machine.t =
     name =  "M_incr" ; 
     transitions = 
       [ (init, Action(RWM(Match(VAL U), Write Z, Right)), init) ;
-	(init, Action(RWM(Match(VAL Z), Write U, Here )), accept) ; 
+	      (init, Action(RWM(Match(VAL Z), Write U, Here )), accept) ; 
         (init, Action(RWM(Match(VAL B), Write U, Here )), accept) 
       ]
   }
@@ -93,7 +93,11 @@ let incr_TM: Turing_Machine.t =
 (**** The named "code" of the previous TM *)
   
 let incr_code: machine_code =
-  let code = [ (* ... à compléter ... *) ]
+  let code = 
+    [ O;Std;Z;C ; U ; Z ; R ; O;Std;Z;C ; (* (Std0) -U/Z:R-> (Std0) *)
+      O;Std;Z;C ; Z ; U ; H ; O;Acc;U;C ; (* (Std0) -Z/U:H-> (Acc1) *)
+      O;Std;Z;C ; B ; U ; H ; O;Acc;U;C   (* (Std0) -B/U:H-> (Acc1) *)
+    ]
   in
   ("m_incr", code)
 
@@ -130,7 +134,34 @@ let decr_TM: Turing_Machine.t =
 (**** The "code" of the previous TM written on one band *)
   
 let decr_code: machine_code =
-  let code = [ (* ... à compléter ... *) ]
+  let code = 
+    [ O;Std;Z;C ; Z ; Z ; R ; O;Std;U;C ; (* (Std0) -Z/_:R-> (Uni1) *)
+      O;Std;Z;C ; U ; Z ; H ; O;Acc;U;C ; (* (Std0) -U/Z:H-> (Acc1) *)
+      O;Std;Z;C ; B ; B ; H ; O;Exc;U;C ; (* (Std0) -_/_:H-> (Exc1) *)
+
+      O;Std;U;C ; B ; B ; L ; O;Exc;U;C ; (* (Uni1) -_/_:L-> (Exc1) *)
+      O;Std;U;C ; Z ; Z ; R ; O;Std;U;C ; (* (Uni1) -Z/_:R-> (Uni1) *)
+      O;Std;U;C ; U ; B ; R ; O;Std;UZ;C ; (* (Uni1) -U/_:R-> (Zer3) *)
+
+      O;Std;UZ;C ; B ; B ; L ; O;Std;ZZ;C ; (* (ZER3) -_/_:R-> (Tran4) *)
+      O;Std;ZZ;C ; B ; B ; L ; O;Std;UZZ;C ; (* (Tran4) -Z/_:R-> (Back5) *)
+
+
+      (* BUT b
+      *)
+
+      O;Std;UZ;C ; Z ; Z ; L ; O;Std;UZZZ;C ; (* (ZER3) -_/_:R-> (Tran5) *)
+      O;Std;UZZZ;C ; B ; Z ; L ; O;Std;UZZ;C ; (* (Tran5) -Z/_:R-> (Back5) *)
+
+      O;Std;UZ;C ; U ; U ; L ; O;Std;UZZZ;C ; (* (ZER3) -_/_:R-> (Tran5) *)
+      O;Std;UZZZ;C ; B ; Z ; L ; O;Std;UZZ;C ; (* (Tran5) -Z/_:R-> (Back5) *)
+
+      (* *)
+
+      O;Std;UZZ;C ; Z ; U ; L ; O;Std;UZZ;C ; (* (Back5) -Z/_:R-> (Back5) *)
+      O;Std;UZZ;C ; B ; B ; R ; O;Acc;U;C ; (* (Back5) -Z/_:R-> (Acc1) *)
+    ]
+    ]
   in  ("m_decr", code)
 
     

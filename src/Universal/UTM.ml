@@ -164,6 +164,7 @@ let next_start: Turing_Machine.t =
 let utm: Turing_Machine.t = 
   let init = nop.initial in
   let accept = nop.accept in
+  let reject = nop.reject in
   let std1 = State.fresh_from init in
   let std_check_acc = State.fresh_from std1 in
   let std_check_acc_2 = State.fresh_from std_check_acc in
@@ -221,6 +222,7 @@ let utm: Turing_Machine.t =
           (* check if we are in acc state *)
           (std_check_acc, Action( Simultaneous [ Nop; Nop; RWM(Match ANY, No_Write, Right)]), std_check_acc_2) ;
           (std_check_acc_2, Action( Simultaneous [ Nop; Nop; RWM(Match(VAL Acc), No_Write, Here)]), accept) ;
+          (std_check_acc_2, Action( Simultaneous [ Nop; Nop; RWM(Match(VAL Exc), No_Write, Here)]), reject) ;
           (std_check_acc_2, Action( Simultaneous [ Nop; Nop; RWM(Match(VAL Std), No_Write, Left)]), std_find_next_trans)
         ] @
           (* TODO: truc à THEO *)

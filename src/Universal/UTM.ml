@@ -17,7 +17,32 @@
  * NOM Prénom : Jessy DUCHAINE
  * NOM Prénom : Ludovic JOZEAU
  * NOM Prénom : Axel JOSEPH
- *
+ * 
+ * MIT License
+ * 
+ * Copyright (c) 2019 
+ * Théo CUOQ
+ * Jessy DUCHAINE
+ * Ludovic JOZEAU
+ * Axel JOSEPH
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *)
 
 
@@ -302,10 +327,11 @@ let demo: unit -> unit = fun () ->
     List.iter (fun _ -> ())
       [ 
         (* run_TM_on neg_TM [U;Z;Z;U] ;
-        run_UTM_on neg_code [U;Z;Z;U] ;
-        run_TM_on incr_TM [U;Z;Z;U] ;
+        run_UTM_on neg_code [U;Z;Z;U] ; *)
+        (* run_TM_on incr_TM [U;Z;Z;U] ;
         run_UTM_on incr_code [U;Z;Z;U] ; *)
-        run_TM_on decr_TM [U;Z;Z;U] ;
-        run_UTM_on decr_code [U;Z;Z;U] ;
+        (* run_TM_on decr_TM [U;Z;Z;U] ; *)
+        run_UTM_on ("b", [ O;Std;Z;C ; B ; U ; R ; O;Std;Z;C ])  [] ;
+        
       ]
   end
